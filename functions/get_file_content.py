@@ -1,10 +1,10 @@
 import os 
 
 def get_file_content(working_directory: str, file_path: str) -> str:
-    abs_path_for_dir = os.path.abspath(working_directory)
-    abs_file_path = os.path.normpath(os.path.join(abs_path_for_dir, file_path))
+    abs_path_for_dir = os.path.abspath(working_directory) #as var implies, this line gets us the absulute path for a directory
+    abs_file_path = os.path.normpath(os.path.join(abs_path_for_dir, file_path)) #this allows us to join the file and the directory together Ex: home/sebas/main.py
     try:
-        if not abs_file_path.startswith(abs_path_for_dir):
+        if not abs_file_path.startswith(abs_path_for_dir): #if the path of the directory is outside of the scope of the abs_path then return error
             return f'Error: Cannot read "{file_path}" as it is outside the permitted working directory'
         if not os.path.isfile(abs_file_path):
             return f'Error: File not found or is not a regular file: "{file_path}"'

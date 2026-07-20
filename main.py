@@ -2,6 +2,10 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 import argparse
+from prompts import *
+from call_functions import available_functions
+import json
+
 
 
 load_dotenv()
@@ -18,14 +22,28 @@ parser.add_argument("--verbose", action="store_true", help="Enable verbose outpu
 args = parser.parse_args()
 # Now we can access `args.user_prompt`
 
-messages = [{"role": "user", "content": args.user_prompt},]
-response = client.chat.completions.create(model="openrouter/free", messages=messages) 
+messages = [{"role": "user", "content": args.user_prompt}, 
+            {"role": "system", "content": system_prompt},
+            ]
+response = client.chat.completions.create(model="openrouter/free", 
+                                          messages=messages, 
+                                          tools=available_functions, 
+                                          ) 
 
 if response.usage is None:
     raise RuntimeError("error encountering usage on tokens")
 
 token_prompting = response.usage.prompt_tokens
 compleation_of_tokens = response.usage.completion_tokens
+response_message = response.choices[0].message
+
+if response_message.tool_calls:
+    for call in response_message.tool_calls:
+        function_args = json.loads(call.function.arguments or "{}")
+        print(f"Calling function: {call.function.name}({function_args})")
+else:
+    print(response_message.content)
+
 
 if args.verbose:
     print(response.choices[0].message.content)
