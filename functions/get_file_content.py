@@ -1,5 +1,23 @@
 import os 
 
+schema_get_file_content = {
+    "type": "function",
+    "function": {
+        "name": "get_file_content",
+        "description": "Reads and returns the content of a specified file relative to the working directory, truncated if it exceeds the maximum character limit",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Path to the file to read, relative to the working directory",
+                },
+            },
+            "required": ["file_path"],
+        },
+    },
+}
+
 def get_file_content(working_directory: str, file_path: str) -> str:
     abs_path_for_dir = os.path.abspath(working_directory) #as var implies, this line gets us the absulute path for a directory
     abs_file_path = os.path.normpath(os.path.join(abs_path_for_dir, file_path)) #this allows us to join the file and the directory together Ex: home/sebas/main.py
