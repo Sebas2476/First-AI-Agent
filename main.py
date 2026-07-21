@@ -3,10 +3,8 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import argparse
 from prompts import *
-from call_functions import available_functions
+from call_functions import *
 import json
-
-
 
 load_dotenv()
 api_key = os.environ.get("OPENROUTER_API_KEY")
@@ -25,6 +23,7 @@ args = parser.parse_args()
 messages = [{"role": "user", "content": args.user_prompt}, 
             {"role": "system", "content": system_prompt},
             ]
+
 response = client.chat.completions.create(model="openrouter/free", 
                                           messages=messages, 
                                           tools=available_functions, 
@@ -38,15 +37,21 @@ compleation_of_tokens = response.usage.completion_tokens
 response_message = response.choices[0].message
 
 if response_message.tool_calls:
+    messages.append(response_message)
     for call in response_message.tool_calls:
-        function_args = json.loads(call.function.arguments or "{}")
-        print(f"Calling function: {call.function.name}({function_args})")
-else:
-    print(response_message.content)
+        result_message = call_function(call, args.verbose)
+        messages.append(result_message)
 
+    final_response = client.chat.completions.create(model="openrouter/free",
+                                                      messages=messages,
+                                                      tools=available_functions,
+                                                      )
+    
+    final_message = final_response.choices[0].message
+else:
+    final_message = response_message
+
+print(final_message.content)
 
 if args.verbose:
-    print(response.choices[0].message.content)
     print(f"User prompt: {args.user_prompt}\nPrompt tokens: {token_prompting}\nResponse tokens: {compleation_of_tokens}")
-else:
-    print(response.choices[0].message.content)
