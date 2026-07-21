@@ -40,11 +40,14 @@ def call_function(tool_call, verbose: bool = False) -> dict:
     else:
         function_args["working_directory"] = "./calculator" #This sets the working directory to ./calculator in function args
         result = function_map[function_name]
-        lookback = result(**function_args)
+        try:
+            lookback = result(**function_args)
+        except Exception as e:
+            lookback = f"Error: {e}"
         return {
             "role": "tool",
             "tool_call_id": tool_call.id,
             "content": lookback
-            
+
         }
         

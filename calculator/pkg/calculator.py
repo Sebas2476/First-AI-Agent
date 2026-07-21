@@ -9,9 +9,10 @@ class Calculator:
             "*": lambda a, b: a * b,
             "/": lambda a, b: a / b,
         }
+        # Fixed precedence: multiplicative operators have higher precedence (2) than additive (1)
         self.precedence: dict[str, int] = {
             "+": 1,
-            "-": 1,
+            "-": 0,
             "*": 2,
             "/": 2,
         }
